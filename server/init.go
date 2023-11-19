@@ -5,14 +5,31 @@ import (
 	"os"
 )
 
-var availableExpiryDates expiryDates
+var availableExpiryDates = make(map[string]*expiryDates)
 
 func init() {
-	entries, err := os.ReadDir("../../data/custom_option_chain/")
+	basePath := "../../data/option_chain/"
+	entries, err := os.ReadDir(basePath)
 	if err != nil {
 		log.Fatal(err)
 	}
 	for _, e := range entries {
-		availableExpiryDates.Dates = append(availableExpiryDates.Dates, e.Name())
+		expDates, err := os.ReadDir(basePath + e.Name())
+		if err != nil {
+			log.Fatal(err)
+		}
+		for _, ed := range expDates {
+			symbols, err := os.ReadDir(basePath + e.Name() + "/" + ed.Name())
+			if err != nil {
+				log.Fatal(err)
+			}
+			for _, sym := range symbols {
+				if _, ok := availableExpiryDates[sym.Name()]; !ok {
+					availableExpiryDates[sym.Name()] = &expiryDates{Dates: []string{ed.Name()}}
+				} else {
+					availableExpiryDates[sym.Name()].Dates = append(availableExpiryDates[sym.Name()].Dates, ed.Name())
+				}
+			}
+		}
 	}
 }
