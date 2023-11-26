@@ -7,11 +7,8 @@ const theme = createTheme({
       main: grey[500],
     },
     secondary: {
-      main: grey[200],
+      main: grey[400],
     },
-    // background: {
-    //   default: "silver",
-    // },
   },
 });
 

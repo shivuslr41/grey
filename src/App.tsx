@@ -12,6 +12,24 @@ import Alert from "@mui/material/Alert";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import Chain from "./chain";
+
+type OptionChain = {
+  cgamma: number
+  cvega: number
+  ctheta: number
+  cdelta: number
+  ce: number
+  pe: number
+  pdelta: number
+  ptheta: number
+  pvega: number
+  pgamma: number
+  strike: number
+  spot: number
+  fut: number
+  vix: number
+}
 
 function Grey() {
   const [alertOpen, setAlertOpen] = useState<Boolean>(false);
@@ -19,27 +37,69 @@ function Grey() {
   const [symbol, setSymbol] = useState<string>("");
   const [date, setDate] = useState<Dayjs>(dayjs("2021-01-01"));
   const [expiry, setExpiry] = useState<string>("");
+  const [availableExpiries, setExpiries] = useState<string[]>([]);
+  const [chain, setChain] = useState<OptionChain[]>([]);
 
   const getExpiryList = (event: SelectChangeEvent) => {
     setSymbol(event.target.value);
     let symbol = event.target.value;
     fetch(
-      `test.rebelscode.online/expiries/${symbol}/${date.format("YYYY-MM-DD")}`,
-    ).then((response) => {
-      if (response.status !== 200 || !response.ok) {
-        console.log("error", date, symbol);
+      `https://grey.rebelscode.online/expiries/${symbol}/${date.format(
+        "YYYY-MM-DD",
+      )}`,
+    )
+      .then(async (response) => {
+        if (response.status !== 200) {
+          console.log("error", symbol, response.status);
+          setAlertOpen(true);
+          setAlertMessage("Something Went Wrong!!!");
+          return;
+        }
+        console.log("success", symbol);
+        setAlertOpen(false);
+        const data = await response.json();
+        setExpiries(data.dates);
+      })
+      .catch((error) => {
+        console.log("error", symbol, error);
         setAlertOpen(true);
         setAlertMessage("Something Went Wrong!!!");
         return;
-      }
-      setAlertOpen(false);
-      const data = response.json();
-      console.log("success", data);
-    });
+      });
   };
 
-  const getOptionsChain = (event: SelectChangeEvent) => {
+  const getOptionChain = (event: SelectChangeEvent) => {
     setExpiry(event.target.value);
+    let expiry = event.target.value;
+    fetch(
+      `https://grey.rebelscode.online/expiries/${symbol}/${date.format(
+        "YYYY-MM-DD",
+      )}`,
+    )
+      .then(async (response) => {
+        if (response.status !== 200) {
+          console.log(
+            "error",
+            symbol,
+            expiry,
+            response.status,
+            response.text(),
+          );
+          setAlertOpen(true);
+          setAlertMessage("Something Went Wrong!!!");
+          return;
+        }
+        console.log("success", symbol, expiry);
+        setAlertOpen(false);
+        const data = await response.json();
+        setExpiries(data.dates);
+      })
+      .catch((error) => {
+        console.log("error", symbol, expiry, error);
+        setAlertOpen(true);
+        setAlertMessage("Something Went Wrong!!!");
+        return;
+      });
     console.log(symbol, expiry, event.target.value);
   };
 
@@ -83,16 +143,20 @@ function Grey() {
                 <Select
                   labelId="expiry-label"
                   value={expiry}
-                  onChange={getOptionsChain}
+                  onChange={getOptionChain}
                   label="Expiry"
                 >
-                  <MenuItem value={"NIFTY"}>NIFTY</MenuItem>
-                  <MenuItem value={"BANKNIFTY"}>BANKNIFTY</MenuItem>
+                  {availableExpiries.map(function (item) {
+                    return <MenuItem value={item}>{item}</MenuItem>;
+                  })}
                 </Select>
               </FormControl>
             </Box>
           </Grid>
         </Grid>
+      </Container>
+      <Container maxWidth="xl" sx={{ mt: 1 }}>
+        <Chain />
       </Container>
     </div>
   );
