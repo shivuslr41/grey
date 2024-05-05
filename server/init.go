@@ -8,7 +8,6 @@ import (
 var availableExpiryDates = make(map[string]*expiryDates)
 
 func init() {
-	basePath := "../../data/option_chain/"
 	entries, err := os.ReadDir(basePath)
 	if err != nil {
 		log.Fatal(err)

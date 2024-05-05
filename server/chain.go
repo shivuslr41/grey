@@ -5,8 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"math"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -66,18 +68,20 @@ const (
 )
 
 type optionChain struct {
-	CE     string `json:"ce"`
-	PE     string `json:"pe"`
-	Cdelta string `json:"cdelta"`
-	Pdelta string `json:"pdelta"`
-	Ctheta string `json:"ctheta"`
-	Ptheta string `json:"ptheta"`
-	Vega   string `json:"vega"`
-	Gamma  string `json:"gamma"`
-	Strike string `json:"strike"`
-	Spot   string `json:"spot"`
-	Fut    string `json:"fut"`
-	Vix    string `json:"vix"`
+	CE     float64 `json:"ce"`
+	PE     float64 `json:"pe"`
+	Cdelta float64 `json:"cdelta"`
+	Pdelta float64 `json:"pdelta"`
+	Ctheta float64 `json:"ctheta"`
+	Ptheta float64 `json:"ptheta"`
+	Cvega  float64 `json:"cvega"`
+	Pvega  float64 `json:"pvega"`
+	Cgamma float64 `json:"cgamma"`
+	Pgamma float64 `json:"pgamma"`
+	Strike float64 `json:"strike"`
+	Spot   float64 `json:"spot"`
+	Fut    float64 `json:"fut"`
+	Vix    float64 `json:"vix"`
 }
 
 // chain respond with option chain data of current selected date and expiry date
@@ -115,7 +119,7 @@ func getChain(symbol, expiryDate, selectedDate string) ([]*optionChain, error) {
 		log.Println("getChain: date convertion error:", err)
 		return nil, err
 	}
-	f, err := os.Open("../../data/option_chain/" + fmt.Sprint(ed.Year(), "/") + expiryDate + "/" + symbol + "/" + selectedDate + ".csv")
+	f, err := os.Open(basePath + fmt.Sprint(ed.Year(), "/") + expiryDate + "/" + symbol + "/" + selectedDate + ".csv")
 	if err != nil {
 		log.Println("getChain: read from file error:", err)
 		return nil, err
@@ -128,19 +132,32 @@ func getChain(symbol, expiryDate, selectedDate string) ([]*optionChain, error) {
 	var ochain []*optionChain
 	for i := range records {
 		ochain = append(ochain, &optionChain{
-			CE:     records[i][close_CE],
-			PE:     records[i][close_PE],
-			Cdelta: records[i][delta_CE],
-			Pdelta: records[i][delta_PE],
-			Ctheta: records[i][theta_CE],
-			Ptheta: records[i][theta_PE],
-			Vega:   records[i][vega_CE],
-			Gamma:  records[i][vega_PE],
-			Strike: records[i][strike],
-			Spot:   records[i][spot],
-			Fut:    records[i][close],
-			Vix:    records[i][close_vix],
+			CE:     parseFloat(records[i][close_CE], false),
+			PE:     parseFloat(records[i][close_PE], false),
+			Cdelta: parseFloat(records[i][delta_CE], true),
+			Pdelta: parseFloat(records[i][delta_PE], true),
+			Ctheta: parseFloat(records[i][theta_CE], true),
+			Ptheta: parseFloat(records[i][theta_PE], true),
+			Cvega:  parseFloat(records[i][vega_CE], true),
+			Pvega:  parseFloat(records[i][vega_PE], true),
+			Cgamma: parseFloat(records[i][gamma_CE], true),
+			Pgamma: parseFloat(records[i][gamma_PE], true),
+			Strike: parseFloat(records[i][strike], false),
+			Spot:   parseFloat(records[i][spot], false),
+			Fut:    parseFloat(records[i][close], false),
+			Vix:    parseFloat(records[i][close_vix], true),
 		})
 	}
 	return ochain, nil
+}
+
+func parseFloat(f string, r bool) float64 {
+	if s, err := strconv.ParseFloat(f, 64); err == nil {
+		if r {
+			return math.Round(s*100) / 100
+		}
+		return s
+	} else {
+		return 0
+	}
 }

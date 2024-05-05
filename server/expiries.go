@@ -84,17 +84,29 @@ func listExpiries(w http.ResponseWriter, r *http.Request) {
 
 // get greatest date of each month among given dates
 func getMonthlyDates(dates map[string]time.Time) []string {
-	var monthlyExpiryDates []string
-	monthlyExpiryDatesMap := make(map[time.Month]string)
-	DatesByMonth := make(map[time.Month]time.Time)
+	var (
+		monthlyExpiryDates    []string
+		greatestMonth         time.Month
+		monthlyExpiryDatesMap = make(map[time.Month]string)
+		DatesByMonth          = make(map[time.Month]time.Time)
+	)
 	for strDate, date := range dates {
 		month := date.Month()
 		greatestDateOfMonth := DatesByMonth[month]
 		if greatestDateOfMonth.Before(date) {
 			DatesByMonth[month] = date
 			monthlyExpiryDatesMap[month] = strDate
+			// store greatest month
+			if month > greatestMonth {
+				greatestMonth = month
+			}
 		}
 	}
+	// remove greatest month if 3 months are present in map
+	if len(monthlyExpiryDatesMap) > 2 {
+		delete(monthlyExpiryDatesMap, greatestMonth)
+	}
+	// store dates in a array
 	for _, date := range monthlyExpiryDatesMap {
 		monthlyExpiryDates = append(monthlyExpiryDates, date)
 	}
