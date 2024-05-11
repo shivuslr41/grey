@@ -14,6 +14,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import Chain from "./chain";
 import { OptionChain } from "./types";
+import { Paper } from "@mui/material";
 
 function Grey() {
   const [alertOpen, setAlertOpen] = useState<Boolean>(false);
@@ -139,6 +140,32 @@ function Grey() {
             </Box>
           </Grid>
         </Grid>
+      </Container>
+      <Container maxWidth="xl" sx={{ mt: 1 }}>
+        <Paper elevation={2}>
+          <Grid container alignItems="center">
+            <Grid item xs={12} md={4} sx={{ mt: 1 }}>
+              <Box sx={{ display: "flex", justifyContent: "center" }}>
+                <p>
+                  {symbol}: {chain[1]?.spot}
+                </p>
+              </Box>
+            </Grid>
+            <Grid item xs={12} md={4} sx={{ mt: 1 }}>
+              <Box sx={{ display: "flex", justifyContent: "center" }}>
+                <p>Futures: {chain[1]?.fut}</p>
+              </Box>
+            </Grid>
+            <Grid item xs={12} md={4} sx={{ mt: 1 }}>
+              <Box sx={{ display: "flex", justifyContent: "center" }}>
+                <p>VIX: {chain[1]?.vix}</p>
+              </Box>
+            </Grid>
+          </Grid>
+        </Paper>
+      </Container>
+      <Container maxWidth="xl" sx={{ mt: 1 }}>
+        <Paper elevation={2}></Paper>
       </Container>
       <Container maxWidth="xl" sx={{ mt: 1 }}>
         <Chain chain={chain} />

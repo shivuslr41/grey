@@ -36,12 +36,17 @@ export default function Chain(ChainProps: ChainProps) {
             >
               <TableHead>
                 <TableRow>
+                  <TableCell>Gamma</TableCell>
+                  <TableCell>Vega</TableCell>
+                  <TableCell>Theta</TableCell>
+                  <TableCell>Delta</TableCell>
+                  <TableCell>CE</TableCell>
                   <TableCell>Strike</TableCell>
-                  {/* <TableCell>Dessert (100g serving)</TableCell>
-                  <TableCell align="right">Calories</TableCell>
-                  <TableCell align="right">Fat&nbsp;(g)</TableCell>
-                  <TableCell align="right">Carbs&nbsp;(g)</TableCell>
-                  <TableCell align="right">Protein&nbsp;(g)</TableCell> */}
+                  <TableCell>PE</TableCell>
+                  <TableCell>Delta</TableCell>
+                  <TableCell>Theta</TableCell>
+                  <TableCell>Vega</TableCell>
+                  <TableCell>Gamma</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -57,13 +62,19 @@ export default function Chain(ChainProps: ChainProps) {
                           "&:last-child td, &:last-child th": { border: 0 },
                         }}
                       >
+                        <TableCell>{c.cgamma}</TableCell>
+                        <TableCell>{c.cvega}</TableCell>
+                        <TableCell>{c.ctheta}</TableCell>
+                        <TableCell>{c.cdelta}</TableCell>
+                        <TableCell>{c.ce}</TableCell>
                         <TableCell component="th" scope="row">
                           {c.strike}
                         </TableCell>
-                        {/* <TableCell align="right">{row.calories}</TableCell>
-                    <TableCell align="right">{row.fat}</TableCell>
-                    <TableCell align="right">{row.carbs}</TableCell>
-                    <TableCell align="right">{row.protein}</TableCell> */}
+                        <TableCell>{c.pe}</TableCell>
+                        <TableCell>{c.pdelta}</TableCell>
+                        <TableCell>{c.ptheta}</TableCell>
+                        <TableCell>{c.pvega}</TableCell>
+                        <TableCell>{c.pgamma}</TableCell>
                       </TableRow>
                     );
                   })}
